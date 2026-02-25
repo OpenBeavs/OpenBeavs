@@ -17,13 +17,13 @@ NC='\033[0m' # No Color
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DATA_DIR="${SCRIPT_DIR}/front/backend/data"
+DATA_DIR="${SCRIPT_DIR}/../front/backend/data"
 SQLITE_DB="${DATA_DIR}/webui.db"
 BACKUP_DIR="${DATA_DIR}/backups/$(date +%Y%m%d_%H%M%S)"
 
 # Load environment variables
-if [ -f "${SCRIPT_DIR}/front/.env" ]; then
-    export $(grep -v '^#' "${SCRIPT_DIR}/front/.env" | xargs)
+if [ -f "${SCRIPT_DIR}/../front/.env" ]; then
+    export $(grep -v '^#' "${SCRIPT_DIR}/../front/.env" | xargs)
 fi
 
 echo -e "${GREEN}==============================================================================${NC}"

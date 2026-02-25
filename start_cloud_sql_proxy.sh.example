@@ -1,0 +1,28 @@
+#!/bin/bash
+# Start Cloud SQL Proxy for local development
+# 
+# This is a template file - DO NOT commit actual credentials!
+# 
+# Setup Instructions:
+# 1. Download Cloud SQL Proxy:
+#    https://cloud.google.com/sql/docs/postgres/sql-proxy#install
+#
+# 2. Copy this template:
+#    cp start_cloud_sql_proxy.sh.example start_cloud_sql_proxy.sh
+#
+# 3. Update the connection string below:
+#    Format: PROJECT_ID:REGION:INSTANCE_NAME
+#
+# 4. Make executable:
+#    chmod +x start_cloud_sql_proxy.sh
+#
+# 5. Run it:
+#    ./start_cloud_sql_proxy.sh
+
+# Update these values for your environment:
+PROXY_PATH="/path/to/cloud_sql_proxy"
+PORT="5433"
+CONNECTION_STRING="YOUR_PROJECT_ID:YOUR_REGION:YOUR_INSTANCE_NAME"
+
+# Start the proxy
+$PROXY_PATH --port $PORT $CONNECTION_STRING

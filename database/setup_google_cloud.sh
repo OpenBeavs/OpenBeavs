@@ -223,7 +223,9 @@ fi
 echo ""
 echo -e "${YELLOW}Generating configuration files...${NC}"
 
-ENV_FILE="$(dirname "$0")/front/.env.cloud.generated"
+ENV_FILE="$(dirname "$0")/../front/.env.cloud.generated"
+# Create directory if it doesn't exist
+mkdir -p "$(dirname "$ENV_FILE")"
 cat > "$ENV_FILE" << EOF
 # =============================================================================
 # Generated Google Cloud Configuration
@@ -248,7 +250,7 @@ GCS_BUCKET_NAME=${BUCKET_NAME}
 GOOGLE_APPLICATION_CREDENTIALS=${KEY_FILE}
 
 # Application
-WEBUI_NAME='OSU Genesis AI Hub'
+WEBUI_NAME=\"OSU Genesis AI Hub\"
 ENV=prod
 WEBUI_AUTH=True
 ENABLE_SIGNUP=True
@@ -276,7 +278,8 @@ EOF
 echo -e "${GREEN}✓ Configuration saved to: $ENV_FILE${NC}"
 
 # Create proxy start script
-PROXY_SCRIPT="$(dirname "$0")/start_cloud_sql_proxy.sh"
+PROXY_SCRIPT="$(dirname "$0")/../start_cloud_sql_proxy.sh"
+mkdir -p "$(dirname "$PROXY_SCRIPT")"
 cat > "$PROXY_SCRIPT" << EOF
 #!/bin/bash
 # Start Cloud SQL Proxy for local development
