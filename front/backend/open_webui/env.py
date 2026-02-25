@@ -31,6 +31,31 @@ try:
 except ImportError:
     print("dotenv not installed, skipping...")
 
+####################################
+# Google Secret Manager Integration
+####################################
+
+USE_SECRET_MANAGER = os.environ.get("USE_SECRET_MANAGER", "false").lower() == "true"
+
+# Helper function to get secrets (with Secret Manager support)
+def get_secret(env_var_name: str, secret_id: str = None, default: str = ""):
+    """
+    Get a secret from Secret Manager or environment variable.
+    Falls back to environment variable if Secret Manager is disabled or fails.
+    """
+    if not USE_SECRET_MANAGER:
+        return os.environ.get(env_var_name, default)
+    
+    try:
+        from open_webui.utils.secret_loader import get_secret as sm_get_secret
+        return sm_get_secret(env_var_name, secret_id, default)
+    except Exception as e:
+        # Fallback to environment variable if Secret Manager fails
+        print(f"Warning: Failed to load from Secret Manager, using env var: {e}")
+        return os.environ.get(env_var_name, default)
+
+####################################
+
 DOCKER = os.environ.get("DOCKER", "False").lower() == "true"
 
 # device type embedding models - "cpu" (default), "cuda" (nvidia gpu required) or "mps" (apple silicon) - choosing this right can lead to better performance
@@ -262,7 +287,7 @@ if os.path.exists(f"{DATA_DIR}/ollama.db"):
 else:
     pass
 
-DATABASE_URL = os.environ.get("DATABASE_URL", f"sqlite:///{DATA_DIR}/webui.db")
+DATABASE_URL = get_secret("DATABASE_URL", "database-url", f"sqlite:///{DATA_DIR}/webui.db")
 
 # Replace the postgres:// with postgresql://
 if "postgres://" in DATABASE_URL:

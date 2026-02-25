@@ -27,6 +27,7 @@ from open_webui.env import (
     WEBUI_AUTH,
     WEBUI_FAVICON_URL,
     WEBUI_NAME,
+    get_secret,
     log,
 )
 from open_webui.internal.db import Base, get_db
@@ -360,7 +361,7 @@ GOOGLE_CLIENT_ID = PersistentConfig(
 GOOGLE_CLIENT_SECRET = PersistentConfig(
     "GOOGLE_CLIENT_SECRET",
     "oauth.google.client_secret",
-    os.environ.get("GOOGLE_CLIENT_SECRET", ""),
+    get_secret("GOOGLE_CLIENT_SECRET", "google-client-secret", ""),
 )
 
 
@@ -379,19 +380,19 @@ GOOGLE_REDIRECT_URI = PersistentConfig(
 MICROSOFT_CLIENT_ID = PersistentConfig(
     "MICROSOFT_CLIENT_ID",
     "oauth.microsoft.client_id",
-    os.environ.get("MICROSOFT_CLIENT_ID", ""),
+    get_secret("MICROSOFT_CLIENT_ID", "microsoft-client-id", ""),
 )
 
 MICROSOFT_CLIENT_SECRET = PersistentConfig(
     "MICROSOFT_CLIENT_SECRET",
     "oauth.microsoft.client_secret",
-    os.environ.get("MICROSOFT_CLIENT_SECRET", ""),
+    get_secret("MICROSOFT_CLIENT_SECRET", "microsoft-client-secret", ""),
 )
 
 MICROSOFT_CLIENT_TENANT_ID = PersistentConfig(
     "MICROSOFT_CLIENT_TENANT_ID",
     "oauth.microsoft.tenant_id",
-    os.environ.get("MICROSOFT_CLIENT_TENANT_ID", ""),
+    get_secret("MICROSOFT_CLIENT_TENANT_ID", "microsoft-tenant-id", ""),
 )
 
 MICROSOFT_OAUTH_SCOPE = PersistentConfig(
@@ -752,7 +753,7 @@ S3_USE_ACCELERATE_ENDPOINT = (
 )
 S3_ADDRESSING_STYLE = os.environ.get("S3_ADDRESSING_STYLE", None)
 
-GCS_BUCKET_NAME = os.environ.get("GCS_BUCKET_NAME", None)
+GCS_BUCKET_NAME = get_secret("GCS_BUCKET_NAME", "gcs-bucket-name", None)
 GOOGLE_APPLICATION_CREDENTIALS_JSON = os.environ.get(
     "GOOGLE_APPLICATION_CREDENTIALS_JSON", None
 )

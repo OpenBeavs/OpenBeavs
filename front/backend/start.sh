@@ -3,15 +3,38 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd "$SCRIPT_DIR" || exit
 
-# Add conditional Playwright browser installation
-if [[ "${WEB_LOADER_ENGINE,,}" == "playwright" ]]; then
-    if [[ -z "${PLAYWRIGHT_WS_URL}" ]]; then
-        echo "Installing Playwright browsers..."
-        playwright install chromium
-        playwright install-deps chromium
+# =============================================================================
+# Check if Cloud SQL Proxy is needed and running
+# =============================================================================
+if grep -q "USE_SECRET_MANAGER=true" "$SCRIPT_DIR/../.env" 2>/dev/null || \
+   grep -q "localhost:5433" "$SCRIPT_DIR/../.env" 2>/dev/null; then
+    echo "🔍 Checking Cloud SQL Proxy status..."
+    
+    if ! pgrep -f cloud_sql_proxy > /dev/null; then
+        echo "⚠️  Cloud SQL Proxy is not running!"
+        echo "📋 Starting Cloud SQL Proxy..."
+        
+        PROXY_SCRIPT="$SCRIPT_DIR/../../start_cloud_sql_proxy.sh"
+        if [ -f "$PROXY_SCRIPT" ]; then
+            bash "$PROXY_SCRIPT" &
+            echo "⏳ Waiting for Cloud SQL Proxy to initialize..."
+            sleep 3
+            
+            if pgrep -f cloud_sql_proxy > /dev/null; then
+                echo "✅ Cloud SQL Proxy started successfully"
+            else
+                echo "❌ Failed to start Cloud SQL Proxy"
+                echo "   Please start it manually: $PROXY_SCRIPT"
+                exit 1
+            fi
+        else
+            echo "❌ Cloud SQL Proxy script not found at: $PROXY_SCRIPT"
+            echo "   Please start it manually before running the application"
+            exit 1
+        fi
+    else
+        echo "✅ Cloud SQL Proxy is running"
     fi
-
-    python -c "import nltk; nltk.download('punkt_tab')"
 fi
 
 KEY_FILE=.webui_secret_key
