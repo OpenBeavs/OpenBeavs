@@ -81,9 +81,6 @@ from open_webui.routers import (
     registry,
     tickets,
     embed,
-    anthropic,
-    chatgpt,
-    gemini,
 )
 
 from open_webui.routers.retrieval import (
@@ -111,15 +108,6 @@ from open_webui.config import (
     OPENAI_API_BASE_URLS,
     OPENAI_API_KEYS,
     OPENAI_API_CONFIGS,
-    # Anthropic
-    ENABLE_ANTHROPIC_API,
-    ANTHROPIC_API_KEY,
-    # ChatGPT
-    ENABLE_CHATGPT_API,
-    CHATGPT_API_KEY,
-    # Gemini Chat
-    ENABLE_GEMINI_CHAT_API,
-    GEMINI_CHAT_API_KEY,
     # Direct Connections
     ENABLE_DIRECT_CONNECTIONS,
     # A2A Agent Connections
@@ -512,33 +500,6 @@ app.state.config.OPENAI_API_KEYS = OPENAI_API_KEYS
 app.state.config.OPENAI_API_CONFIGS = OPENAI_API_CONFIGS
 
 app.state.OPENAI_MODELS = {}
-
-########################################
-#
-# ANTHROPIC
-#
-########################################
-
-app.state.config.ENABLE_ANTHROPIC_API = ENABLE_ANTHROPIC_API
-app.state.config.ANTHROPIC_API_KEY = ANTHROPIC_API_KEY
-
-########################################
-#
-# CHATGPT
-#
-########################################
-
-app.state.config.ENABLE_CHATGPT_API = ENABLE_CHATGPT_API
-app.state.config.CHATGPT_API_KEY = CHATGPT_API_KEY
-
-########################################
-#
-# GEMINI
-#
-########################################
-
-app.state.config.ENABLE_GEMINI_CHAT_API = ENABLE_GEMINI_CHAT_API
-app.state.config.GEMINI_CHAT_API_KEY = GEMINI_CHAT_API_KEY
 
 ########################################
 #
@@ -997,9 +958,6 @@ app.mount("/ws", socket_app)
 
 app.include_router(ollama.router, prefix="/ollama", tags=["ollama"])
 app.include_router(openai.router, prefix="/openai", tags=["openai"])
-app.include_router(anthropic.router, prefix="/anthropic", tags=["anthropic"])
-app.include_router(chatgpt.router, prefix="/chatgpt", tags=["chatgpt"])
-app.include_router(gemini.router, prefix="/gemini", tags=["gemini"])
 
 
 app.include_router(pipelines.router, prefix="/api/v1/pipelines", tags=["pipelines"])
@@ -1063,11 +1021,6 @@ async def get_models(request: Request, user=Depends(get_verified_user)):
         for model in models:
             # Skip filtering for agent models - they're always accessible if enabled
             if model.get("owned_by") == "a2a-agent":
-                filtered_models.append(model)
-                continue
-
-            # Anthropic, ChatGPT, Gemini models bypass access control
-            if model.get("owned_by") in ("anthropic", "chatgpt", "gemini"):
                 filtered_models.append(model)
                 continue
 

@@ -6,9 +6,6 @@ from aiocache import cached
 from fastapi import Request
 
 from open_webui.routers import openai, ollama
-from open_webui.routers import anthropic as anthropic_router
-from open_webui.routers import chatgpt as chatgpt_router
-from open_webui.routers import gemini as gemini_router
 from open_webui.functions import get_function_models
 
 
@@ -57,23 +54,8 @@ async def get_all_base_models(request: Request, user: UserModel = None):
             for model in ollama_models["models"]
         ]
 
-    anthropic_models = []
-    if getattr(request.app.state.config, "ENABLE_ANTHROPIC_API", False):
-        result = await anthropic_router.get_all_models(request, user=user)
-        anthropic_models = result["data"]
-
-    chatgpt_models = []
-    if getattr(request.app.state.config, "ENABLE_CHATGPT_API", False):
-        result = await chatgpt_router.get_all_models(request, user=user)
-        chatgpt_models = result["data"]
-
-    gemini_models = []
-    if getattr(request.app.state.config, "ENABLE_GEMINI_CHAT_API", False):
-        result = await gemini_router.get_all_models(request, user=user)
-        gemini_models = result["data"]
-
     function_models = await get_function_models(request)
-    models = function_models + openai_models + ollama_models + anthropic_models + chatgpt_models + gemini_models
+    models = function_models + openai_models + ollama_models
 
     return models
 
