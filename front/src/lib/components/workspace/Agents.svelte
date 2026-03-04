@@ -1,20 +1,16 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
 	import { onMount, getContext } from 'svelte';
-	import { WEBUI_NAME, config, user } from '$lib/stores';
+	import { WEBUI_NAME, config, user, models } from '$lib/stores';
 	import { getModels } from '$lib/apis';
-    
-    // We'll need to create these API functions
-    // import { getRegistryAgents, submitRegistryAgent, deleteRegistryAgent, updateRegistryAgent } from '$lib/apis/registry';
-    // For now, I'll define placeholders or assume they exist and I'll create them next.
-    
+	import { WEBUI_BASE_URL } from '$lib/constants';
+
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import Search from '$lib/components/icons/Search.svelte';
 	import Plus from '$lib/components/icons/Plus.svelte';
 	import Spinner from '$lib/components/common/Spinner.svelte';
     import GarbageBin from '$lib/components/icons/GarbageBin.svelte';
     import ArrowDownTray from '$lib/components/icons/ArrowDownTray.svelte';
-    import Info from '$lib/components/icons/Info.svelte';
 
 	const i18n = getContext('i18n');
 
@@ -22,12 +18,11 @@
 	let agents = [];
 	let filteredAgents = [];
 	let searchValue = '';
-    
-    let showSubmitModal = false;
-    let submitUrl = '';
-    let submitImageUrl = '';
-    let submitFoundationalModel = '';
-    let submitAccessControl = null; // Default to public/null
+
+    let showAddModal = false;
+    let addUrl = '';
+    let addImageUrl = '';
+    let addSubmitting = false;
 
 	$: if (agents) {
 		filteredAgents = agents.filter(
@@ -35,87 +30,95 @@
 		);
 	}
 
-    // Mock API calls until I create the frontend API file
     const fetchAgents = async () => {
-        const res = await fetch('/api/v1/registry/', {
-            headers: {
-                'Authorization': `Bearer ${localStorage.token}`
+        try {
+            const res = await fetch(`${WEBUI_BASE_URL}/api/v1/registry/`, {
+                headers: { 'Authorization': `Bearer ${localStorage.token}` }
+            });
+            if (res.ok) {
+                agents = await res.json();
+            } else {
+                toast.error('Failed to fetch agents');
             }
-        });
-        if (res.ok) {
-            agents = await res.json();
-        } else {
+        } catch (e) {
             toast.error('Failed to fetch agents');
         }
     };
 
-    const submitAgent = async () => {
-        if (!submitUrl) return;
-        
-        const res = await fetch('/api/v1/registry/', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${localStorage.token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                url: submitUrl,
-                image_url: submitImageUrl,
-                foundational_model: submitFoundationalModel,
-                access_control: submitAccessControl
-            })
-        });
-        
-        if (res.ok) {
-            toast.success('Agent submitted successfully');
-            showSubmitModal = false;
-            submitUrl = '';
-            submitImageUrl = '';
-            submitFoundationalModel = '';
-            await fetchAgents();
-        } else {
-            const err = await res.json();
-            toast.error(err.detail || 'Failed to submit agent');
+    const addAgent = async () => {
+        if (!addUrl || addSubmitting) return;
+        addSubmitting = true;
+        try {
+            const res = await fetch(`${WEBUI_BASE_URL}/api/v1/agents/register-by-url`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    agent_url: addUrl,
+                    profile_image_url: addImageUrl || undefined
+                })
+            });
+
+            if (res.ok) {
+                toast.success('Agent added successfully');
+                showAddModal = false;
+                addUrl = '';
+                addImageUrl = '';
+                models.set(await getModels(localStorage.token));
+                await fetchAgents();
+            } else {
+                const err = await res.json().catch(() => ({}));
+                toast.error(err.detail || 'Failed to add agent');
+            }
+        } catch (e) {
+            toast.error('Failed to add agent');
+        } finally {
+            addSubmitting = false;
         }
     };
 
     const deleteAgent = async (id) => {
-        const res = await fetch(`/api/v1/registry/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${localStorage.token}`
+        try {
+            const res = await fetch(`${WEBUI_BASE_URL}/api/v1/registry/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${localStorage.token}` }
+            });
+            if (res.ok) {
+                toast.success('Agent deleted');
+                await fetchAgents();
+            } else {
+                toast.error('Failed to delete agent');
             }
-        });
-        
-        if (res.ok) {
-            toast.success('Agent deleted');
-            await fetchAgents();
-        } else {
+        } catch (e) {
             toast.error('Failed to delete agent');
         }
     };
-    
+
     const installAgent = async (agent) => {
-        // Calls the existing A2A registration endpoint
-        const res = await fetch('/api/v1/agents/register-by-url', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${localStorage.token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                agent_url: agent.url,
-                profile_image_url: agent.image_url
-            })
-        });
-        
-        if (res.ok) {
-            toast.success('Agent installed successfully');
-            // Refresh models to show the new agent
-            await models.set(await getModels(localStorage.token));
-        } else {
-            const err = await res.json();
-            toast.error(err.detail || 'Failed to install agent');
+        try {
+            const res = await fetch(`${WEBUI_BASE_URL}/api/v1/agents/register-by-url`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    agent_url: agent.url,
+                    profile_image_url: agent.image_url
+                })
+            });
+
+            if (res.ok) {
+                toast.success('Agent installed successfully');
+                models.set(await getModels(localStorage.token));
+            } else {
+                const err = await res.json().catch(() => ({}));
+                toast.error(err.detail || 'Failed to install agent');
+            }
+        } catch (e) {
+            toast.error('Failed to install agent');
         }
     };
 
@@ -132,18 +135,18 @@
 </svelte:head>
 
 {#if loaded}
-    <!-- Submit Modal -->
-    {#if showSubmitModal}
+    <!-- Add Agent Modal -->
+    {#if showAddModal}
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-md shadow-xl">
-                <h2 class="text-xl font-semibold mb-4">{$i18n.t('Submit Agent')}</h2>
-                
+                <h2 class="text-xl font-semibold mb-4">{$i18n.t('Add Agent')}</h2>
+
                 <div class="mb-4">
                     <label class="block text-sm font-medium mb-1">{$i18n.t('Agent URL')}</label>
-                    <input 
-                        type="text" 
-                        bind:value={submitUrl}
-                        placeholder="https://example.com"
+                    <input
+                        type="text"
+                        bind:value={addUrl}
+                        placeholder="http://localhost:8002"
                         class="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                     />
                     <p class="text-xs text-gray-500 mt-1">{$i18n.t('URL must host a .well-known/agent.json file')}</p>
@@ -151,48 +154,27 @@
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium mb-1">{$i18n.t('Agent Image URL (Optional)')}</label>
-                    <input 
-                        type="text" 
-                        bind:value={submitImageUrl}
+                    <input
+                        type="text"
+                        bind:value={addImageUrl}
                         placeholder="https://example.com/image.png"
                         class="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
 
-                <div class="mb-4">
-                    <label class="block text-sm font-medium mb-1">{$i18n.t('Foundational Model (Optional)')}</label>
-                    <input 
-                        type="text" 
-                        bind:value={submitFoundationalModel}
-                        placeholder="e.g. Llama 3, GPT-4"
-                        class="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-                
-                <div class="mb-4">
-                    <label class="block text-sm font-medium mb-1">{$i18n.t('Visibility')}</label>
-                    <select 
-                        bind:value={submitAccessControl} 
-                        class="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
-                    >
-                        <option value={null}>{$i18n.t('Public (Everyone)')}</option>
-                        <option value={{}}>{$i18n.t('Private (Only Me)')}</option>
-                    </select>
-                </div>
-                
                 <div class="flex justify-end gap-2">
-                    <button 
+                    <button
                         class="px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-                        on:click={() => showSubmitModal = false}
+                        on:click={() => { showAddModal = false; addUrl = ''; addImageUrl = ''; }}
                     >
                         {$i18n.t('Cancel')}
                     </button>
-                    <button 
+                    <button
                         class="px-4 py-2 rounded-lg bg-black dark:bg-white text-white dark:text-black font-medium disabled:opacity-50"
-                        disabled={!submitUrl}
-                        on:click={submitAgent}
+                        disabled={!addUrl || addSubmitting}
+                        on:click={addAgent}
                     >
-                        {$i18n.t('Submit')}
+                        {addSubmitting ? $i18n.t('Adding...') : $i18n.t('Add')}
                     </button>
                 </div>
             </div>
@@ -225,7 +207,7 @@
 			<div>
 				<button
 					class=" px-2 py-2 rounded-xl hover:bg-gray-700/10 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition font-medium text-sm flex items-center space-x-1"
-					on:click={() => showSubmitModal = true}
+					on:click={() => showAddModal = true}
 				>
 					<Plus className="size-3.5" />
 				</button>
