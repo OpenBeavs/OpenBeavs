@@ -21,6 +21,11 @@ Rohan Thapliyal
 email: thapliyr@oregonstate.edu , rohanthapliyal2020@gmail.com
 GH: Rohanthap
 
+Long Tran
+#: 541 207 5609
+email: tranlon@oregonstate.edu
+GH: longtran921
+
 John Sweet
 #: 2135456760
 email: john.sweet@oregonstate.edu

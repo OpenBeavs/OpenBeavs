@@ -1,8 +1,8 @@
 # API Key Configuration
 
-This guide explains how to obtain and configure API keys so that Claude, ChatGPT, and Gemini models appear in the OpenBeavs model selector.
+This guide explains how to configure API keys so that Claude, ChatGPT, and Gemini are available as agents in OpenBeavs.
 
-All keys go in `front/.env`. Restart the backend after any changes.
+Each provider runs as a standalone A2A agent server. Keys go into each agent's own `.env` file. Once the server is running, install the agent through the Workspace > Agents page.
 
 ---
 
@@ -14,18 +14,23 @@ All keys go in `front/.env`. Restart the backend after any changes.
 3. Click **Create Key**, give it a name (e.g. `openbeavs-local`), and click **Create API Key**.
 4. Copy the key — it starts with `sk-ant-`. **You will not be able to see it again after closing the dialog.**
 
-### 2. Add to `front/.env`
+### 2. Add to `agents/claude-agent/.env`
 ```
 ANTHROPIC_API_KEY='sk-ant-YOUR_KEY_HERE'
-ENABLE_ANTHROPIC_API='True'
 ```
 
-### 3. Models Available
-- Claude Opus 4.6
-- Claude Sonnet 4.6
-- Claude Haiku 4.5
-- Claude 3.5 Sonnet
-- Claude 3.5 Haiku
+### 3. Start the Agent Server
+```bash
+cd agents/claude-agent
+conda run -n open-webui python agent.py
+```
+The server runs on **port 8002**.
+
+### 4. Install in OpenBeavs
+Go to **Workspace > Agents** → click **+** → enter `http://localhost:8002` → click **Add**.
+
+### Available Models
+Default: `claude-sonnet-4-6`. Also supported: `claude-opus-4-6`, `claude-haiku-4-5-20251001`, `claude-3-5-sonnet-20241022`, `claude-3-5-haiku-20241022`.
 
 ---
 
@@ -37,18 +42,23 @@ ENABLE_ANTHROPIC_API='True'
 3. Click **Create new secret key**, give it a name, and click **Create secret key**.
 4. Copy the key — it starts with `sk-`. **You will not be able to see it again after closing the dialog.**
 
-### 2. Add to `front/.env`
+### 2. Add to `agents/chatgpt-agent/.env`
 ```
 CHATGPT_API_KEY='sk-YOUR_KEY_HERE'
-ENABLE_CHATGPT_API='True'
 ```
 
-### 3. Models Available
-- GPT-5.2 Thinking
-- GPT-5.2 Instant
-- GPT-5.2 Pro
-- GPT-4o
-- GPT-4o mini
+### 3. Start the Agent Server
+```bash
+cd agents/chatgpt-agent
+conda run -n open-webui python agent.py
+```
+The server runs on **port 8003**.
+
+### 4. Install in OpenBeavs
+Go to **Workspace > Agents** → click **+** → enter `http://localhost:8003` → click **Add**.
+
+### Available Models
+Default: `gpt-4o`. Also supported: `gpt-4o-mini`, `gpt-5.2`, `gpt-5.2-chat-latest`, `gpt-5.2-pro`.
 
 ---
 
@@ -60,32 +70,33 @@ ENABLE_CHATGPT_API='True'
 3. Click **Create API key**, select a Google Cloud project, and click **Create API key in existing project**.
 4. Copy the key — it starts with `AIza`.
 
-### 2. Add to `front/.env`
+### 2. Add to `agents/gemini-agent/.env`
 ```
-GEMINI_CHAT_API_KEY='AIza-YOUR_KEY_HERE'
-ENABLE_GEMINI_CHAT_API='True'
+GEMINI_API_KEY='AIza-YOUR_KEY_HERE'
 ```
 
-### 3. Models Available
-- Gemini 2.5 Pro
-- Gemini 2.5 Flash
-- Gemini 2.0 Flash
-- Gemini 2.0 Flash-Lite
-- Gemini 1.5 Pro
-- Gemini 1.5 Flash
+### 3. Start the Agent Server
+```bash
+cd agents/gemini-agent
+conda run -n open-webui python agent.py
+```
+The server runs on **port 8004**.
+
+### 4. Install in OpenBeavs
+Go to **Workspace > Agents** → click **+** → enter `http://localhost:8004` → click **Add**.
+
+### Available Models
+Default: `gemini-2.0-flash`. Also supported: `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.0-flash-lite`, `gemini-1.5-pro`, `gemini-1.5-flash`.
 
 ---
 
 ## Notes
 
-- If a key is left empty, that provider's models will not appear in the selector — no error is shown, they are simply hidden.
-- Keys are stored in `front/.env` which is gitignored and never committed to the repository.
-- A full backend restart is required after changing any key.
+- Keys are stored in each agent's `.env` file, which is gitignored and never committed to the repository.
+- Each agent server must be running before you can install or chat with it.
+- If an agent server is not running, the Add step will fail with: "Error fetching agent's .well-known/agent.json".
+- Once installed, an agent appears in the chat model selector and in Arena mode.
 
-```bash
-conda run -n open-webui bash dev.sh
-```
+---
 
-Note: I (Long Tran) has the api keys for Claude and GPT for testing purpose, but since the key got revoked multiple times
-since I leave it here in plain text, I didn't include it here anymore.
-If you need the API keys, email or message me on Discord.
+*API keys for Claude and ChatGPT for testing purposes is held by Long Tran. Contact me via email or Discord if needed.*
