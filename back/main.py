@@ -245,19 +245,42 @@ async def jsonrpc_endpoint(request: Request):
 # Initialize with example agent
 @app.on_event("startup")
 def startup_event():
-    # Register example agent
-    example_agent = Agent(
-        id="cyrano_agent",
-        name="Cyrano de Bergerac",
-        description="A poetic assistant that responds with eloquent, flowery language",
-        endpoint=None,
-        input_schema={"type": "object", "properties": {"message": {"type": "string"}}},
-        output_schema={
-            "type": "object",
-            "properties": {"response": {"type": "string"}},
-        },
-    )
-    agents_db.append(example_agent.dict())
+    default_agents = [
+        Agent(
+            id="cyrano_agent",
+            name="Cyrano de Bergerac",
+            description="A poetic assistant that responds with eloquent, flowery language",
+            endpoint="http://localhost:8001",
+            input_schema={"type": "object", "properties": {"message": {"type": "string"}}},
+            output_schema={"type": "object", "properties": {"response": {"type": "string"}}},
+        ),
+        Agent(
+            id="claude_agent",
+            name="Claude",
+            description="Anthropic Claude — claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001",
+            endpoint="http://localhost:8002",
+            input_schema={"type": "object", "properties": {"message": {"type": "string"}}},
+            output_schema={"type": "object", "properties": {"response": {"type": "string"}}},
+        ),
+        Agent(
+            id="chatgpt_agent",
+            name="ChatGPT",
+            description="OpenAI ChatGPT — gpt-4o, gpt-4o-mini, gpt-5.2",
+            endpoint="http://localhost:8003",
+            input_schema={"type": "object", "properties": {"message": {"type": "string"}}},
+            output_schema={"type": "object", "properties": {"response": {"type": "string"}}},
+        ),
+        Agent(
+            id="gemini_agent",
+            name="Gemini",
+            description="Google Gemini — gemini-2.5-pro, gemini-2.5-flash, gemini-2.0-flash",
+            endpoint="http://localhost:8004",
+            input_schema={"type": "object", "properties": {"message": {"type": "string"}}},
+            output_schema={"type": "object", "properties": {"response": {"type": "string"}}},
+        ),
+    ]
+    for agent in default_agents:
+        agents_db.append(agent.dict())
 
 
 # Chat endpoints
