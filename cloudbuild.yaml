@@ -50,7 +50,15 @@ steps:
       - '--cpu=4'
       - '--port=8080'
       - '--timeout=600'
-      - '--set-env-vars=HOST=0.0.0.0,WEBUI_SECRET_KEY=change-me-in-prod,OFFLINE_MODE=true,ENV=prod,RAG_EMBEDDING_MODEL_AUTO_UPDATE=false,RAG_RERANKING_MODEL_AUTO_UPDATE=false,BYPASS_EMBEDDING_AND_RETRIEVAL=true,BYPASS_WEB_SEARCH_EMBEDDING_AND_RETRIEVAL=true,WHISPER_MODEL_AUTO_UPDATE=false'
+      # Service account with Cloud SQL client + Secret Manager accessor roles
+      - '--service-account=genesis-ai-hub-sa@osu-genesis-hub.iam.gserviceaccount.com'
+      # Cloud SQL Auth Proxy — enables Unix socket at /cloudsql/INSTANCE_CONNECTION_NAME
+      - '--add-cloudsql-instances=osu-genesis-hub:us-west1:genesis-ai-hub-db-west1'
+      # DATABASE_URL is injected from Secret Manager (password never in plaintext here)
+      # Microsoft SSO credentials also come from Secret Manager
+      - '--set-secrets=DATABASE_URL=database-url:latest,MICROSOFT_CLIENT_ID=microsoft-client-id:latest,MICROSOFT_CLIENT_SECRET=microsoft-client-secret:latest,MICROSOFT_CLIENT_TENANT_ID=microsoft-tenant-id:latest'
+      # Application environment variables
+      - '--set-env-vars=HOST=0.0.0.0,ENV=prod,OFFLINE_MODE=true,RAG_EMBEDDING_MODEL_AUTO_UPDATE=false,RAG_RERANKING_MODEL_AUTO_UPDATE=false,BYPASS_EMBEDDING_AND_RETRIEVAL=true,BYPASS_WEB_SEARCH_EMBEDDING_AND_RETRIEVAL=true,WHISPER_MODEL_AUTO_UPDATE=false,DATABASE_POOL_SIZE=2,DATABASE_POOL_MAX_OVERFLOW=4,ENABLE_OAUTH_SIGNUP=true,OAUTH_MERGE_ACCOUNTS_BY_EMAIL=true,MICROSOFT_OAUTH_SCOPE=openid email profile,MICROSOFT_REDIRECT_URI=https://openbeavs-deploy-test-716080272371.us-west1.run.app/oauth/microsoft/callback'
       - '--cpu-boost'
 
 options:
