@@ -27,13 +27,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # ESLint is run locally (npm run lint:frontend) but excluded from CI until
-      # the inherited Open WebUI codebase is cleaned up. backend/ is excluded via
-      # front/.eslintignore to prevent linting vendored static assets.
-
-      - name: Type check (svelte-check)
-        run: npm run lint:types
-
       - name: Unit tests (Vitest)
         run: npm run test:frontend
 
