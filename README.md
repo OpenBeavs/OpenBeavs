@@ -1,10 +1,146 @@
 # OpenBeavs
 
-OpenBeavs for CS Capstone. Team # 043
+An AI Agent Registry Platform for Oregon State University — a customized fork of [Open WebUI](https://github.com/open-webui/open-webui) v0.6.5.
 
-A model for collaboration between Oregon State AI agents, utilizing context to provide users with better responses to queries.
+OpenBeavs adds agent discovery, registration, and Agent-to-Agent (A2A) communication to the Open WebUI workspace. Users can browse a shared registry of AI agents, install them into their workspace, and let agents collaborate via the A2A JSON-RPC 2.0 protocol to produce richer responses.
 
-Team Roster/Contacts:
+**CS Capstone Team #043**
+
+## Tech Stack
+
+| Layer | Technologies |
+|-------|-------------|
+| Frontend | SvelteKit 2, Svelte 4, TypeScript 5, Tailwind CSS 4, Vite 5 |
+| Backend (A2A hub) | FastAPI, Pydantic, jsonrpcserver, Python 3.11+ |
+| Backend (Open WebUI) | FastAPI, SQLAlchemy, LangChain, ChromaDB |
+| Auth | Azure MSAL (Microsoft SSO) |
+| Infrastructure | Docker, Google Cloud Run, Cloud Build, Artifact Registry |
+
+## Architecture Overview
+
+OpenBeavs is split into three main parts:
+
+- **`front/`** — SvelteKit UI (forked from Open WebUI). Contains the frontend app and the bundled Open WebUI Python backend. Handles workspace management, agent browsing, and chat.
+- **`back/`** — Lightweight FastAPI service that acts as the A2A hub. Manages agent registration, discovery, and routes JSON-RPC 2.0 messages between agents.
+- **`agents/`** — Example agents (Cyrano-de-Bergerac, oregon-state-expert, etc.) that demonstrate how to build and deploy A2A-compatible agents.
+
+Communication between agents uses the **A2A protocol**: JSON-RPC 2.0 over HTTP with discovery via `/.well-known/agent.json` endpoints. The flow is: Browser -> Open WebUI Backend -> JSON-RPC -> External Agents.
+
+## Project Structure
+
+```
+OpenBeavs/
+├── front/              # SvelteKit frontend (Open WebUI fork)
+│   ├── src/            # Svelte components, routes, stores, API clients
+│   ├── backend/        # Open WebUI Python backend (bundled)
+│   ├── cypress/        # E2E tests
+│   ├── test/           # Unit tests (Vitest)
+│   └── static/         # Static assets
+├── back/               # FastAPI backend — A2A hub
+│   ├── main.py         # All routes, models, in-memory DB
+│   └── tests/          # pytest tests
+├── agents/             # Example A2A agents
+├── docs/               # Architecture docs, ADRs, schemas
+├── Dockerfile          # Unified multi-stage build (Node 20 → Python 3.11)
+├── cloudbuild.yaml     # GCP Cloud Build pipeline
+├── deploy.sh           # Manual deployment script
+├── docker-compose.yaml # Local Docker setup
+└── Makefile            # Docker convenience commands
+```
+
+## Prerequisites
+
+- [Docker](https://www.docker.com/)
+- [Google Cloud SDK](https://cloud.google.com/sdk/docs/install)
+- [Node.js and npm](https://nodejs.org/) (Node 20+)
+- [Python 3.11+](https://www.python.org/)
+
+## Local Development
+
+### Backend (`back/`)
+
+```bash
+cd back
+pip install -r requirements.txt
+uvicorn main:app --reload  # http://localhost:8000
+```
+
+### Frontend (`front/`)
+
+```bash
+cd front
+npm install
+npm run pyodide:fetch   # one-time: download WASM Python runtime
+npm run dev             # http://localhost:5173
+```
+
+### Docker
+
+```bash
+make install   # docker-compose up -d
+make start     # start existing containers
+make stop      # stop containers
+```
+
+## Testing
+
+### Backend
+
+```bash
+cd back && pytest tests/ -v
+```
+
+### Frontend
+
+```bash
+cd front
+npm run test:frontend     # Vitest unit tests
+npm run cy:open           # Cypress E2E (interactive)
+```
+
+## Linting & Formatting
+
+### Frontend
+
+```bash
+cd front
+npm run lint              # ESLint + type check + backend lint
+npm run lint:frontend     # ESLint only
+npm run format            # Prettier
+```
+
+Prettier config: tabs, single quotes, 100 char width, no trailing commas.
+
+### Backend
+
+```bash
+cd back
+ruff check .    # lint
+ruff format     # format
+```
+
+## Deployment
+
+### Automated (primary)
+
+Merging to `main` triggers automatic deployment via `cloudbuild.yaml`:
+
+1. Pull cached Docker image from Artifact Registry
+2. Build unified image (Node 20 frontend + Python 3.11 backend)
+3. Push to `us-west1-docker.pkg.dev/osu-genesis-hub/cloud-run-source-deploy/openbeavs-frontend`
+4. Deploy to Cloud Run (`openbeavs-deploy-test`, us-west1, 4 CPU / 8 GiB RAM)
+
+### Manual
+
+Requires a `.env` file with `GCP_PROJECT_ID` and `GCP_REGION`.
+
+```bash
+gcloud auth login
+gcloud auth configure-docker
+./deploy.sh
+```
+
+## Team Roster/Contacts
 
 James Smith
 #: 5037138776
@@ -31,73 +167,15 @@ John Sweet
 email: john.sweet@oregonstate.edu
 GH: jsweet8258
 
-#eof#
+## Contributing & Documentation
 
-## Project Structure
+- [Contributing Guide](./CONTRIBUTING.md)
+- [Architecture & ADRs](./docs/)
+- A2A documentation:
+  - [A2A Quickstart](./front/A2A_QUICKSTART.md)
+  - [A2A Implementation Summary](./front/A2A_IMPLEMENTATION_SUMMARY.md)
+  - [A2A Code Changes](./front/A2A_CODE_CHANGES.md)
 
-- `front/`: OpenBeavs - An AI Agent Registry platform with A2A protocol support.
-- `back/`: Contains the FastAPI backend application.
-- `deploy.sh`: A script to deploy both applications to Google Cloud Run.
+## License
 
-## OpenBeavs & Agent Registry
-
-This project is the **OpenBeavs** platform that features a decentralized **A2A Agent Registry**.
-- **Agent Registry**: Discover, share, and install AI agents.
-- **Workspace Integration**: Manage agents directly from the UI.
-- **A2A Protocol**: Full support for Agent-to-Agent communication.
-
-For detailed documentation, please refer to [front/README.md](./front/README.md).
-
-## Prerequisites
-
-- [Docker](https://www.docker.com/)
-- [Google Cloud SDK](https://cloud.google.com/sdk/docs/install)
-- [Node.js and npm](https://nodejs.org/)
-
-## Local Development
-
-### Backend
-
-1.  Navigate to the `back` directory:
-    ```bash
-    cd back
-    ```
-2.  Install dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
-3.  Run the development server:
-    ```bash
-    uvicorn main:app --reload
-    ```
-    The backend will be available at `http://localhost:8000`.
-
-- Note: To lint, use `ruff check`
-
-### Frontend (OpenBeavs)
-
-For detailed setup and development instructions for the OpenBeavs frontend, please refer to [front/README.md](./front/README.md).
-
-## Deployment
-
-1.  **Authenticate with GCP:**
-
-    ```bash
-    gcloud auth login
-    gcloud auth configure-docker
-    ```
-
-2.  **Configure the `deploy.sh` script:**
-
-    Open `deploy.sh` and replace the following placeholder values with your GCP project ID and desired region:
-
-    - `your-gcp-project-id`
-    - `your-gcp-region`
-
-3.  **Run the deployment script:**
-
-    ```bash
-    ./deploy.sh
-    ```
-
-    The script will build and deploy both the backend and frontend applications to Google Cloud Run. The frontend will be automatically configured to communicate with the deployed backend.
+This project is licensed under the MIT License. See [LICENSE](./LICENSE) for details.

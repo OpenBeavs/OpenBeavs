@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "svelte.svelte-vscode",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "charliermarsh.ruff",
+    "ms-python.python",
+    "bradlc.vscode-tailwindcss",
+    "usernamehw.errorlens"
+  ]
+}
