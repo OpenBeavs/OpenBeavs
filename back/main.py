@@ -289,6 +289,11 @@ def read_root():
     return {"message": "OpenBeavs Backend - Ready!"}
 
 
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "agents": len(agents_db)}
+
+
 @app.get("/chats", response_model=List[Chat])
 def get_chats():
     """Get all chat threads"""

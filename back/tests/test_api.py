@@ -4,6 +4,15 @@ from unittest.mock import patch
 import concurrent.futures as cf
 import pytest
 
+# 0) Health endpoint should return status ok and an agent count.
+def test_health(client):
+    r = client.get("/health")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["status"] == "ok"
+    assert isinstance(body["agents"], int)
+
+
 # 1) Root endpoint should respond 200 with a readiness message prefix.
 def test_1(client):
     r = client.get("/")
