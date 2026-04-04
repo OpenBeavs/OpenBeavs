@@ -4,3 +4,5 @@ pydantic
 requests
 jsonrpcserver
 ruff
+pytest
+httpx
