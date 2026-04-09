@@ -1,10 +1,7 @@
 from datetime import datetime
-from io import BytesIO
 from pathlib import Path
 from typing import Dict, Any, List
 from html import escape
-
-from markdown import markdown
 
 import site
 from fpdf import FPDF

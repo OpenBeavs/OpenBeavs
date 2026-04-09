@@ -9,7 +9,6 @@ import os
 
 
 from datetime import datetime, timedelta
-import pytz
 from pytz import UTC
 from typing import Optional, Union, List, Dict
 

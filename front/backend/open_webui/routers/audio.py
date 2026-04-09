@@ -6,7 +6,6 @@ import uuid
 from functools import lru_cache
 from pathlib import Path
 from pydub import AudioSegment
-from pydub.silence import split_on_silence
 
 import aiohttp
 import aiofiles
@@ -15,7 +14,6 @@ import mimetypes
 
 from fastapi import (
     Depends,
-    FastAPI,
     File,
     HTTPException,
     Request,
@@ -23,7 +21,6 @@ from fastapi import (
     status,
     APIRouter,
 )
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 

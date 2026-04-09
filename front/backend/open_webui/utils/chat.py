@@ -2,7 +2,6 @@ import time
 import logging
 import sys
 
-from aiocache import cached
 from typing import Any, Optional
 import random
 import json
@@ -11,7 +10,7 @@ import uuid
 import asyncio
 
 from fastapi import Request, status
-from starlette.responses import Response, StreamingResponse, JSONResponse
+from starlette.responses import Response, StreamingResponse
 
 
 from open_webui.models.users import UserModel
