@@ -1,4 +1,4 @@
-name: Simple CI Check
+name: CI
 
 on:
   push:
@@ -8,8 +8,49 @@ on:
   workflow_dispatch:
 
 jobs:
-  check:
+  frontend:
+    name: Frontend — Lint & Type Check & Tests
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: front
+
     steps:
-      - name: Echo Success Message
-        run: echo "✅ CI Good"
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: front/package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Unit tests (Vitest)
+        run: npm run test:frontend
+
+  backend-hub:
+    name: Backend Hub — Lint & Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: back
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: back/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lint (Ruff)
+        run: ruff check .
+
+      - name: Run tests
+        run: pytest tests/ -v
