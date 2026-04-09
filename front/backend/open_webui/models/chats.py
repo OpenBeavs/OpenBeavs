@@ -10,7 +10,7 @@ from open_webui.env import SRC_LOG_LEVELS
 
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import BigInteger, Boolean, Column, String, Text, JSON
-from sqlalchemy import or_, func, select, and_, text
+from sqlalchemy import or_, func, and_, text
 from sqlalchemy.sql import exists
 
 ####################
