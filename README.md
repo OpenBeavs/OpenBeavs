@@ -1,103 +1,152 @@
+<!-- PLACEHOLDER: Replace the img src below with your banner once it's committed.
+     Suggested: copy .github-private/docs/Assets/Banner.png → docs/assets/banner.png
+     Then this path will work as-is. -->
+<div align="center">
+  <img src="./docs/assets/banner.png" width="100%" alt="OpenBeavs — AI Agent Platform for Oregon State University" />
+</div>
+
+<div align="center">
+
 # OpenBeavs
 
-OpenBeavs for CS Capstone. Team # 043
+**An AI agent platform that brings specialized AI assistants directly into the OSU community — no extra accounts, no friction.**
 
-A model for collaboration between Oregon State AI agents, utilizing context to provide users with better responses to queries.
+[![CI](https://github.com/OpenBeavs/OpenBeavs/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenBeavs/OpenBeavs/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-orange.svg)](./LICENSE)
+[![Built with SvelteKit](https://img.shields.io/badge/Built%20with-SvelteKit-FF3E00?logo=svelte&logoColor=white)](https://kit.svelte.dev/)
+[![Deployed on GCP](https://img.shields.io/badge/Deployed%20on-Google%20Cloud%20Run-4285F4?logo=googlecloud&logoColor=white)](https://cloud.google.com/run)
 
-Team Roster/Contacts:
+<!-- PLACEHOLDER: Add your live Cloud Run URL below (appears twice in this file).
+     Find it: GCP Console → Cloud Run → service "openbeavs-deploy-test" (us-west1) → copy the URL. -->
+[**→ Try OpenBeavs Live**](https://PLACEHOLDER_CLOUD_RUN_URL) &nbsp;·&nbsp;
+[View on GitHub](https://github.com/OpenBeavs/OpenBeavs) &nbsp;·&nbsp;
+[Report a Bug](https://github.com/OpenBeavs/OpenBeavs/issues)
 
-James Smith
-#: 5037138776
-email: smitjam2@oregonstate.edu , galavantinggeckoguy@gmail.com
-GH: gitJamoo
+</div>
 
-Minsu Kim
-#: 971-297-4257
-Email: kimminsu@oregonstate.edu , minsteww26@gmail.com
-GH: minkim26
+---
 
-Rohan Thapliyal
-#: 5035236168
-email: thapliyr@oregonstate.edu , rohanthapliyal2020@gmail.com
-GH: Rohanthap
+## What is OpenBeavs?
 
-Long Tran
-#: 541 207 5609
-email: tranlon@oregonstate.edu
-GH: longtran921
+Oregon State University students and faculty rely on dozens of different AI tools — and none of them know anything about OSU. OpenBeavs fixes that.
 
-John Sweet
-#: 2135456760
-email: john.sweet@oregonstate.edu
-GH: jsweet8258
+It's a shared AI workspace where you **sign in with your OSU account** and instantly access a registry of specialized AI agents: an OSU knowledge-base assistant that answers questions about classes, departments, and campus life; a writing coach; a weather agent; and more. Agents can even collaborate with each other behind the scenes to give you richer answers.
 
-#eof#
+**The so-what:** Instead of every team or department building their own AI integration from scratch, OpenBeavs provides a single, OSU-authenticated hub where agents are discoverable, installable, and interoperable — using an open protocol anyone can build on.
 
-## Project Structure
+---
 
-- `front/`: OpenBeavs - An AI Agent Registry platform with A2A protocol support.
-- `back/`: Contains the FastAPI backend application.
-- `deploy.sh`: A script to deploy both applications to Google Cloud Run.
+## Key Features
 
-## OpenBeavs & Agent Registry
+### For Students & Faculty
 
-This project is the **OpenBeavs** platform that features a decentralized **A2A Agent Registry**.
-- **Agent Registry**: Discover, share, and install AI agents.
-- **Workspace Integration**: Manage agents directly from the UI.
-- **A2A Protocol**: Full support for Agent-to-Agent communication.
+- **Sign in with your OSU account** — Microsoft SSO means no new passwords; your existing OSU credentials work out of the box.
+- **Browse and install AI agents from a shared registry** — find agents built by other OSU teams, install them into your workspace, and start chatting immediately.
+- **Ask the OSU knowledge base anything** — a continuously-updated RAG agent crawls `*.oregonstate.edu` to answer real questions about admissions, financial aid, courses, and more.
+- **Agents that collaborate** — specialized agents pass tasks to each other automatically; a single question can route through multiple experts and come back as one coherent answer.
 
-For detailed documentation, please refer to [front/README.md](./front/README.md).
+### For Developers
 
-## Prerequisites
+- **Build your own agent in minutes** — any HTTP service that serves a `/.well-known/agent.json` card can register with the hub. Language and framework are your choice.
+- **Open protocol (A2A)** — agents communicate over JSON-RPC 2.0; the spec is public and the example agents are in this repo under [`agents/`](./agents/).
 
-- [Docker](https://www.docker.com/)
-- [Google Cloud SDK](https://cloud.google.com/sdk/docs/install)
-- [Node.js and npm](https://nodejs.org/)
+---
 
-## Local Development
+## Demo
 
-### Backend
+<!-- The demo.gif lives at front/demo.gif — no changes needed to this path. -->
+<div align="center">
+  <img
+    src="./front/demo.gif"
+    width="90%"
+    alt="Screen recording showing a user browsing the OpenBeavs agent registry, installing an OSU knowledge-base agent, and asking it a question about financial aid. The agent returns an accurate, sourced answer within seconds."
+  />
+  <p><em>Browsing the agent registry and chatting with the OSU knowledge-base agent.</em></p>
+</div>
 
-1.  Navigate to the `back` directory:
-    ```bash
-    cd back
-    ```
-2.  Install dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
-3.  Run the development server:
-    ```bash
-    uvicorn main:app --reload
-    ```
-    The backend will be available at `http://localhost:8000`.
+<!-- PLACEHOLDER: Add 1-2 static screenshots below for more context.
+     Suggested shots:
+       1. The agent registry grid (Browse Agents view)
+       2. The chat interface with multiple agents active
+     Steps: take screenshots while the app is running, save to docs/assets/, then uncomment:
+       <img src="./docs/assets/screenshot-registry.png" width="45%" alt="Agent registry showing available OSU agents" />
+       <img src="./docs/assets/screenshot-chat.png" width="45%" alt="Chat interface with the OSU knowledge-base agent" />
+-->
 
-- Note: To lint, use `ruff check`
+---
 
-### Frontend (OpenBeavs)
+## Try It
 
-For detailed setup and development instructions for the OpenBeavs frontend, please refer to [front/README.md](./front/README.md).
+| Option | Details |
+|--------|---------|
+| **Live deployment** | [**→ Open the app**](https://PLACEHOLDER_CLOUD_RUN_URL) — sign in with your OSU Microsoft account |
+| **Run locally** | See [Local Setup](#local-setup) below |
+| **OSU RAG Pipeline** | [github.com/OpenBeavs/OSU-RAG-Pipeline](https://github.com/OpenBeavs/OSU-RAG-Pipeline) |
 
-## Deployment
+**Platform requirements:** Modern browser (Chrome, Firefox, Safari). OSU Microsoft account required for the live deployment. Local Docker setup has no auth requirement.
 
-1.  **Authenticate with GCP:**
+---
 
-    ```bash
-    gcloud auth login
-    gcloud auth configure-docker
-    ```
+## Local Setup
 
-2.  **Configure the `deploy.sh` script:**
+```bash
+# Clone the repo
+git clone https://github.com/OpenBeavs/OpenBeavs.git
+cd OpenBeavs
 
-    Open `deploy.sh` and replace the following placeholder values with your GCP project ID and desired region:
+# Run the full stack with Docker (recommended)
+make install   # docker-compose up -d — app at http://localhost:3000
+```
 
-    - `your-gcp-project-id`
-    - `your-gcp-region`
+**Prerequisites:** [Docker](https://www.docker.com/) (recommended) · Node 20+ · Python 3.11+
 
-3.  **Run the deployment script:**
+For per-service setup, API key configuration, and deployment docs:
 
-    ```bash
-    ./deploy.sh
-    ```
+- [Backend dev guide](./back/README.md) · [Frontend dev guide](./front/README.md)
+- [API key setup (Claude, ChatGPT, Gemini)](./apikeyconfig.md)
+- [A2A Quickstart](./front/A2A_QUICKSTART.md)
+- [Architecture & ADRs](./docs/)
+- [Contributing Guide](./CONTRIBUTING.md)
 
-    The script will build and deploy both the backend and frontend applications to Google Cloud Run. The frontend will be automatically configured to communicate with the deployed backend.
+---
+
+## How It Works
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                      OpenBeavs Hub                       │
+│  SvelteKit UI  →  FastAPI Backend  →  Agent Registry     │
+│           ↕ A2A (JSON-RPC 2.0 over HTTP)                 │
+│   OSU Expert · Cyrano · Weather · Your Agent Here...     │
+└──────────────────────┬──────────────────────────────────┘
+                       │ vector queries
+┌──────────────────────▼──────────────────────────────────┐
+│                   OSU RAG Pipeline                       │
+│  BFS Crawler → Embeddings → Firestore Vector Store       │
+│  (crawls *.oregonstate.edu on a cron schedule)           │
+└─────────────────────────────────────────────────────────┘
+```
+
+The hub routes user messages to registered agents using the **A2A protocol** — an open JSON-RPC 2.0 standard with `/.well-known/agent.json` discovery cards. Agents can call other agents, enabling multi-step pipelines with no extra glue code.
+
+---
+
+## Team
+
+**CS Capstone Team #043 · Oregon State University**
+
+| Name | Role | GitHub | Contact |
+|------|------|--------|---------|
+| James Smith | Developer / PM | [@gitJamoo](https://github.com/gitJamoo) | smitjam2@oregonstate.edu |
+| Minsu Kim | Developer | [@minkim26](https://github.com/minkim26) | kimminsu@oregonstate.edu |
+| Rohan Thapliyal | Developer / CI-CD | [@Rohanthap](https://github.com/Rohanthap) | thapliyr@oregonstate.edu |
+| Long Tran | Developer / QA | [@longtran921](https://github.com/longtran921) | tranlon@oregonstate.edu |
+| John Sweet | Project Sponsor | [@jsweet8258](https://github.com/jsweet8258) | john.sweet@oregonstate.edu |
+
+**Questions or feedback?** [Open a GitHub Issue](https://github.com/OpenBeavs/OpenBeavs/issues) or email any team member above.
+
+---
+
+## License
+
+This project is licensed under the MIT License — see [LICENSE](./LICENSE) for details.
