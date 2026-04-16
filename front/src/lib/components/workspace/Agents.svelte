@@ -204,7 +204,15 @@
 				/>
 			</div>
 
-			<div>
+			<div class="flex items-center gap-1">
+				{#if $user?.role === 'admin'}
+					<a
+						href="/workspace/agents/deploy"
+						class="px-3 py-2 rounded-xl bg-black dark:bg-white text-white dark:text-black hover:opacity-80 transition font-medium text-xs"
+					>
+						{$i18n.t('Deploy new agent')}
+					</a>
+				{/if}
 				<button
 					class=" px-2 py-2 rounded-xl hover:bg-gray-700/10 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition font-medium text-sm flex items-center space-x-1"
 					on:click={() => showAddModal = true}

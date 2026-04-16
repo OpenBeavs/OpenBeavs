@@ -31,6 +31,13 @@ class Agent(Base):
     output_schema = Column(JSONField, nullable=True)
     profile_image_url = Column(Text, nullable=True)
 
+    # Deploy-view fields (internal-runtime agents)
+    system_prompt = Column(Text, nullable=True)
+    provider = Column(String, nullable=True)
+    model = Column(String, nullable=True)
+    deployment_mode = Column(String, nullable=True)
+    deployment_status = Column(String, nullable=True)
+
     # Metadata
     is_active = Column(Boolean, default=True)
     created_at = Column(BigInteger)
@@ -54,12 +61,17 @@ class AgentModel(BaseModel):
     input_schema: Optional[dict] = None
     output_schema: Optional[dict] = None
     profile_image_url: Optional[str] = None
+    system_prompt: Optional[str] = None
+    provider: Optional[str] = None
+    model: Optional[str] = None
+    deployment_mode: Optional[str] = None
+    deployment_status: Optional[str] = None
     is_active: bool = True
     created_at: int
     updated_at: int
     user_id: Optional[str] = None
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, protected_namespaces=())
 
 ####################
 # Forms
@@ -97,6 +109,18 @@ class AgentUpdateForm(BaseModel):
     is_active: Optional[bool] = None
 
 
+class DeployAgentForm(BaseModel):
+    name: str
+    description: str
+    system_prompt: str
+    provider: str = "anthropic"
+    model: Optional[str] = None
+    profile_image_url: Optional[str] = None
+    publish_to_registry: bool = True
+
+    model_config = ConfigDict(protected_namespaces=())
+
+
 ####################
 # Agent Table
 ####################
@@ -118,6 +142,11 @@ class AgentsTable:
         input_schema: Optional[dict] = None,
         output_schema: Optional[dict] = None,
         profile_image_url: Optional[str] = None,
+        system_prompt: Optional[str] = None,
+        provider: Optional[str] = None,
+        model: Optional[str] = None,
+        deployment_mode: Optional[str] = None,
+        deployment_status: Optional[str] = None,
         user_id: Optional[str] = None,
     ) -> Optional[AgentModel]:
         with get_db() as db:
@@ -136,6 +165,11 @@ class AgentsTable:
                     "input_schema": input_schema,
                     "output_schema": output_schema,
                     "profile_image_url": profile_image_url,
+                    "system_prompt": system_prompt,
+                    "provider": provider,
+                    "model": model,
+                    "deployment_mode": deployment_mode,
+                    "deployment_status": deployment_status,
                     "is_active": True,
                     "created_at": int(time.time()),
                     "updated_at": int(time.time()),

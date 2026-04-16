@@ -1,0 +1,118 @@
+Agent Deploy View MVP — Manual Test Plan
+=========================================
+
+Scope: verify the /deploy form, internal-a2a runtime, and marketplace
+auto-publish implemented on the agent-deploy-view-mvp branch.
+
+- OFFLINE/NO API KEY TEST NOTE: no LLM API keys are set, so actual chat replies will fail
+  with a clean JSON-RPC error envelope.
+
+
+Test Cases
+----------
+
+T1. Deploy page is reachable from the Agents workspace (admin)
+    Steps : Admin -> sidebar Workspace -> Agents tab. Top-right should
+            show a black "Deploy new agent" button next to the "+" add-
+            by-URL button.
+    Expect: Button visible only for admin. Clicking navigates to
+            /workspace/agents/deploy.
+
+T2. Non-admin cannot reach the deploy page
+    Steps : In the incognito (non-admin) window, browse directly to
+            http://localhost:8080/workspace/agents/deploy.
+    Expect: Redirected to / (home). No deploy form rendered. No
+            "Deploy new agent" button on the Agents tab for this user.
+
+T4. Required-field validation
+    Steps : Leave Name OR Description OR System Prompt blank. Try to
+            submit.
+    Expect: Deploy button stays disabled (grey, 50% opacity). Form does
+            not POST.
+
+T5. Happy-path deploy with marketplace publish ON (default)
+    Steps : Name="HelpfulBot", Description="smoke test bot",
+            System Prompt="You answer in exactly one sentence.",
+            Provider=Anthropic, Model=(leave default),
+            Profile Image URL=(blank), Publish to marketplace=checked.
+            Click Deploy.
+    Expect: Toast "Agent deployed". Redirect to /workspace/agents.
+            HelpfulBot card visible with the "anthropic/claude-sonnet-4-6"
+            badge.
+
+T6. Deployed agent has a valid A2A discovery card
+    Steps : From the HelpfulBot card note the agent id (or pull it from
+            the row URL). In a terminal:
+
+              curl -s http://localhost:8080/api/v1/agents/<ID>/internal-a2a/.well-known/agent.json | python -m json.tool
+
+    Expect: 200 OK, JSON with name=HelpfulBot, version=1.0.0,
+            capabilities.streaming=true, skills[0].id="chat",
+            defaultInputModes=["text"], defaultOutputModes=["text"],
+            and url pointing at /api/v1/agents/<ID>/internal-a2a.
+
+T7. Internal-a2a JSON-RPC returns a clean error envelope offline
+    Steps : Still in the terminal:
+
+              curl -s -X POST http://localhost:8080/api/v1/agents/<ID>/internal-a2a \
+                -H 'Content-Type: application/json' \
+                -d '{"jsonrpc":"2.0","method":"message/send","params":{"message":{"messageId":"abc","role":"user","parts":[{"text":"hello","type":"text"}]}},"id":1}' \
+                | python -m json.tool
+
+    Expect: HTTP 200 with a JSON-RPC envelope:
+              { "jsonrpc":"2.0",
+                "error":{"code":-32000,
+                         "message":"ANTHROPIC_API_KEY is not set on the hub; ..."},
+                "id":1 }
+            NOT a 500 or a stack trace. id echoes the request.
+
+T8. Malformed JSON-RPC body is handled gracefully
+    Steps : curl -s -X POST .../internal-a2a -H 'Content-Type: application/json' -d '{"method":"nope"}'
+    Expect: JSON-RPC error envelope (invalid method / missing fields),
+            not HTTP 500.
+
+T9. Marketplace publish OFF -> agent not in registry
+    Steps : Back in the UI, deploy a second agent "QuietBot" with
+            Publish to marketplace UNCHECKED.
+    Expect: Toast success, redirect back to Agents. Then:
+
+              curl -s http://localhost:8080/api/v1/registry/ \
+                -H "Authorization: Bearer <ADMIN_TOKEN>" | python -m json.tool
+
+            HelpfulBot is present; QuietBot is not.
+            (Admin token: copy from localStorage.token in DevTools.)
+
+T10. Provider switch to OpenAI / Gemini persists through deploy
+    Steps : Deploy "GeminiBot" with Provider=Gemini, default model.
+    Expect: /api/v1/registry/ shows foundational_model="gemini/gemini-2.0-flash".
+            The .well-known card for GeminiBot reflects the same values
+            as T6. JSON-RPC call against it returns the matching "GEMINI_API_KEY
+            is not set on the hub; ..." error envelope.
+
+T11. Chat relay path (LIMITED — requires API key)
+    Steps : Open a chat, pick "HelpfulBot" from the model picker, send
+            "Hello there".
+    Offline expect: Chat shows an error bubble (the upstream 502 from
+            the runtime). The chat UI does not crash; you can still send
+            subsequent messages to a different model.
+    Online  expect (when ANTHROPIC_API_KEY is wired): one-sentence reply
+            that respects the system prompt.
+
+T12. Agent list delete still works
+    Steps : On /workspace/agents, click the trash icon on HelpfulBot.
+    Expect: Toast "Agent deleted". Card disappears. GET /api/v1/registry/
+            no longer lists it. (Note: this deletes the registry entry,
+            not necessarily the underlying `agent` row — verify by
+            trying to GET .well-known/agent.json for the same id; if
+            the row survives, that's a cleanup item for a follow-up.)
+
+T13. Ownership / role gates on deploy endpoint
+    Steps : Using the non-admin token:
+
+              curl -s -o /dev/null -w "%{http_code}\n" \
+                -X POST http://localhost:8080/api/v1/agents/deploy \
+                -H "Authorization: Bearer <NONADMIN_TOKEN>" \
+                -H 'Content-Type: application/json' \
+                -d '{"name":"Hack","description":"x","system_prompt":"y"}'
+
+    Expect: 401 (admin-only via get_admin_user).
