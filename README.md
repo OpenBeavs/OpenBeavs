@@ -61,18 +61,14 @@ It's a shared AI workspace where you **sign in with your OSU account** and insta
   <p><em>Browsing the agent registry and chatting with the OSU knowledge-base agent.</em></p>
 </div>
 
-  <iframe 
-    id="kaltura_player" 
-    src="https://media.oregonstate.edu/p/1285941/sp/128594100/embedIframeJs/uiconf_id/28628201/partner_id/1285941?iframeembed=true&entry_id=1_2qvehzir" 
-    width="608" 
-    height="402" 
-    allowfullscreen 
-    webkitallowfullscreen 
-    mozAllowFullScreen 
-    allow="autoplay *; fullscreen *; encrypted-media *" 
-    frameborder="0"
-    title="Demo video of the Oregon State Agent assistant">
-  </iframe>
+<div align="center">
+  <a href="https://media.oregonstate.edu/media/t/1_2qvehzir">
+    <img src="https://cfvod.kaltura.com/p/1285941/sp/128594100/thumbnail/entry_id/1_2qvehzir/width/600" 
+         alt="Demo video showing the Oregon State Agent assist a user with a query" 
+         style="max-width: 100%;">
+  </a>
+  <p><i>This quick demo shows how the Oregon State Agent would assist users.</i></p>
+</div>
 
 <!-- PLACEHOLDER: Add 1-2 static screenshots below for more context.
      Suggested shots:
