@@ -61,7 +61,6 @@ It's a shared AI workspace where you **sign in with your OSU account** and insta
   <p><em>Browsing the agent registry and chatting with the OSU knowledge-base agent.</em></p>
 </div>
 
-<figure>
   <iframe 
     id="kaltura_player" 
     src="https://media.oregonstate.edu/p/1285941/sp/128594100/embedIframeJs/uiconf_id/28628201/partner_id/1285941?iframeembed=true&entry_id=1_2qvehzir" 
@@ -74,8 +73,6 @@ It's a shared AI workspace where you **sign in with your OSU account** and insta
     frameborder="0"
     title="Demo video of the Oregon State Agent assistant">
   </iframe>
-  <figcaption>This quick demo shows how the Oregon State Agent assists users with their queries.</figcaption>
-</figure>
 
 <!-- PLACEHOLDER: Add 1-2 static screenshots below for more context.
      Suggested shots:
