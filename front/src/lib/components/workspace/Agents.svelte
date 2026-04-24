@@ -69,6 +69,11 @@
 	};
 
 	const handleInstall = async (agent: RegistryAgent) => {
+		if (!agent.url) {
+			toast.error($i18n.t('This agent has no deployed URL yet. Deploy it to GCP first, then update its registry entry with the Cloud Run URL.'));
+			return;
+		}
+
 		try {
 			const res = await fetch(`${WEBUI_BASE_URL}/api/v1/agents/register-by-url`, {
 				method: 'POST',
