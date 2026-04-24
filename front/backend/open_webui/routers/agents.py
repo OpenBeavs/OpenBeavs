@@ -167,10 +167,18 @@ async def register_agent_by_url(
         skills = agent_data.get("skills", [])
         default_input_modes = agent_data.get("defaultInputModes", ["text"])
         default_output_modes = agent_data.get("defaultOutputModes", ["text"])
-        
+
+        # Derive the A2A JSON-RPC endpoint from the well-known URL path.
+        # ADK agents host their RPC handler at the path prefix before /.well-known/,
+        # not at the base domain root (e.g. /a2a/trivia_agent/ not /).
+        if "/.well-known/" in well_known_url:
+            rpc_endpoint = well_known_url[: well_known_url.index("/.well-known/")] + "/"
+        else:
+            rpc_endpoint = base_url + "/"
+
         # Use provided profile image or default to favicon
         profile_image_url = form_data.profile_image_url or agent_data.get("profileImageUrl") or "/static/favicon.png"
-        
+
         # Check if agent with this URL already exists
         existing_agent = Agents.get_agent_by_url(url)
         if existing_agent:
@@ -178,16 +186,17 @@ async def register_agent_by_url(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="An agent with this URL is already registered",
             )
-        
+
         # Generate a unique ID for the agent
         agent_id = str(uuid.uuid4())
-        
+
         # Insert the agent into the database
         agent = Agents.insert_new_agent(
             id=agent_id,
             name=name,
             description=description,
             url=url,
+            endpoint=rpc_endpoint,
             version=version,
             capabilities=capabilities,
             skills=skills,
