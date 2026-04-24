@@ -16,7 +16,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Local agent CRUD + A2A message relay (`/api/agents`)
 - Support ticket system (`/api/tickets`)
 - Microsoft SSO (MSAL) authentication
-- Standalone example agents: Cyrano-de-Bergerac, oregon-state-expert, oregon-state-scraper, weather-expert-agent, master-router, claude-agent, chatgpt-agent, gemini-agent
+- Standalone example agents: Cyrano-de-Bergerac, oregon-state-expert, oregon-state-scraper, weather-expert-agent, claude-agent, chatgpt-agent, gemini-agent
 - Unified Docker build: SvelteKit frontend + Python backend in one image
 - GCP Cloud Run deployment via `cloudbuild.yaml` (auto-deploy on merge to `main`)
 - Makefile convenience commands for Docker workflows

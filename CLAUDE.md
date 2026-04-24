@@ -53,8 +53,7 @@ GENESIS-AI-Hub/
 │   ├── Cyrano-de-Bergerac/
 │   ├── oregon-state-expert/
 │   ├── oregon-state-scraper/
-│   ├── weather-expert-agent/
-│   └── master-router/
+│   └── weather-expert-agent/
 │
 ├── docs/                        # Architecture docs and ADRs
 ├── .github/

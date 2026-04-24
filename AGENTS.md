@@ -54,8 +54,7 @@ GENESIS-AI-Hub/
 │   ├── Cyrano-de-Bergerac/      # Two-agent system (Chris + Cyrano + orchestrator)
 │   ├── oregon-state-expert/
 │   ├── oregon-state-scraper/
-│   ├── weather-expert-agent/
-│   └── master-router/
+│   └── weather-expert-agent/
 │
 ├── docs/                        # Long-form project documentation
 ├── .github/
