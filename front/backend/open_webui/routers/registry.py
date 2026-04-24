@@ -94,6 +94,7 @@ async def submit_registry_agent(
             foundational_model=form_data.foundational_model,
             tools=tools,
             access_control=form_data.access_control,
+            card_url=well_known_url,
         )
 
         if agent:

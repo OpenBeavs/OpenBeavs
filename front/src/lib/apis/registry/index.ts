@@ -10,6 +10,7 @@ export interface RegistryAgent {
 	foundational_model: string | null;
 	tools: { capabilities?: Record<string, unknown>; skills?: unknown[] } | null;
 	access_control: Record<string, unknown> | null;
+	card_url: string | null;
 	is_featured: boolean;
 	created_at: number;
 	updated_at: number;

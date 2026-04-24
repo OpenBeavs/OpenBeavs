@@ -69,8 +69,9 @@
 	};
 
 	const handleInstall = async (agent: RegistryAgent) => {
-		if (!agent.url) {
-			toast.error($i18n.t('This agent has no deployed URL yet. Deploy it to GCP first, then update its registry entry with the Cloud Run URL.'));
+		const installUrl = agent.card_url || agent.url;
+		if (!installUrl) {
+			toast.error($i18n.t('No URL available to install this agent.'));
 			return;
 		}
 
@@ -82,7 +83,7 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					agent_url: agent.url,
+					agent_url: installUrl,
 					profile_image_url: agent.image_url
 				})
 			});

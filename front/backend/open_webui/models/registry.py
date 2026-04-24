@@ -33,6 +33,9 @@ class RegistryAgent(Base):
     # - `{}`: Private access (owner only)
     # - Custom permissions: {"read": {"group_ids": [...]}, "write": ...}
 
+    # Original well-known card URL submitted by the user (may differ from `url`)
+    card_url = Column(String, nullable=True)
+
     # Curation
     is_featured = Column(Boolean, default=False, nullable=False)
     # Only admins may set this. Featured agents appear in the dedicated showcase section.
@@ -51,6 +54,7 @@ class RegistryAgentModel(BaseModel):
     foundational_model: Optional[str] = None
     tools: Optional[dict] = None
     access_control: Optional[dict] = None
+    card_url: Optional[str] = None
     is_featured: bool = False
     created_at: int
     updated_at: int
@@ -95,6 +99,7 @@ class RegistryAgentsTable:
         foundational_model: Optional[str] = None,
         tools: Optional[dict] = None,
         access_control: Optional[dict] = None,
+        card_url: Optional[str] = None,
     ) -> Optional[RegistryAgentModel]:
         """Insert a new agent into the registry."""
         with get_db() as db:
@@ -109,6 +114,7 @@ class RegistryAgentsTable:
                     "foundational_model": foundational_model,
                     "tools": tools,
                     "access_control": access_control,
+                    "card_url": card_url,
                     "is_featured": False,
                     "created_at": int(time.time()),
                     "updated_at": int(time.time()),
