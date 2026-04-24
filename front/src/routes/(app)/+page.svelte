@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Chat from '$lib/components/chat/Chat.svelte';
+	import ChrisChat from '$lib/components/chat/ChrisChat.svelte';
 	import Help from '$lib/components/layout/Help.svelte';
 </script>
 
 <Help />
-<Chat />
+<ChrisChat />
