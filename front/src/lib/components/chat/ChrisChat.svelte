@@ -17,6 +17,10 @@
 	import ArrowUpCircle from '$lib/components/icons/ArrowUpCircle.svelte';
 	import MenuLines from '$lib/components/icons/MenuLines.svelte';
 
+	// ── Props ─────────────────────────────────────────────────────────────────
+
+	export let onSwitchUI: (() => void) | undefined = undefined;
+
 	// ── Types ─────────────────────────────────────────────────────────────────
 
 	type InstalledAgent = {
@@ -203,6 +207,20 @@
 		<Sparkles className="w-6 h-6 text-blue-500" />
 		<h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Chris</h1>
 		<span class="text-sm text-gray-500 dark:text-gray-400">OpenBeavs AI Hub</span>
+
+		{#if onSwitchUI}
+			<button
+				class="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium
+				       border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800
+				       text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+				on:click={onSwitchUI}
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-3.5">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+				</svg>
+				Classic UI
+			</button>
+		{/if}
 	</div>
 
 	<!-- Message thread -->
