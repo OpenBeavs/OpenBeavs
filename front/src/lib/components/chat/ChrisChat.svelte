@@ -178,7 +178,8 @@
 </script>
 
 <!-- ── Layout ──────────────────────────────────────────────────────────────── -->
-<div class="flex flex-col h-full w-full max-w-3xl mx-auto px-4 pb-4 pt-8">
+<div class="h-screen max-h-[100dvh] w-full flex flex-col overflow-hidden">
+<div class="flex flex-col flex-1 overflow-hidden w-full max-w-3xl mx-auto px-4 pb-4 pt-8">
 
 	<!-- Header -->
 	<div class="flex items-center gap-2 mb-6">
@@ -341,4 +342,5 @@
 			<ArrowUpCircle className="w-7 h-7" />
 		</button>
 	</div>
+</div>
 </div>
