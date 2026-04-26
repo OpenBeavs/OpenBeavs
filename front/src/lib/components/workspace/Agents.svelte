@@ -10,7 +10,6 @@
 	import Plus from '$lib/components/icons/Plus.svelte';
 	import Spinner from '$lib/components/common/Spinner.svelte';
     import GarbageBin from '$lib/components/icons/GarbageBin.svelte';
-    import ArrowDownTray from '$lib/components/icons/ArrowDownTray.svelte';
 
 	const i18n = getContext('i18n');
 
@@ -32,7 +31,7 @@
 
     const fetchAgents = async () => {
         try {
-            const res = await fetch(`${WEBUI_BASE_URL}/api/v1/registry/`, {
+            const res = await fetch(`${WEBUI_BASE_URL}/api/v1/agents/`, {
                 headers: { 'Authorization': `Bearer ${localStorage.token}` }
             });
             if (res.ok) {
@@ -81,44 +80,19 @@
 
     const deleteAgent = async (id) => {
         try {
-            const res = await fetch(`${WEBUI_BASE_URL}/api/v1/registry/${id}`, {
+            const res = await fetch(`${WEBUI_BASE_URL}/api/v1/agents/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${localStorage.token}` }
             });
             if (res.ok) {
                 toast.success('Agent deleted');
+                models.set(await getModels(localStorage.token));
                 await fetchAgents();
             } else {
                 toast.error('Failed to delete agent');
             }
         } catch (e) {
             toast.error('Failed to delete agent');
-        }
-    };
-
-    const installAgent = async (agent) => {
-        try {
-            const res = await fetch(`${WEBUI_BASE_URL}/api/v1/agents/register-by-url`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    agent_url: agent.url,
-                    profile_image_url: agent.image_url
-                })
-            });
-
-            if (res.ok) {
-                toast.success('Agent installed successfully');
-                models.set(await getModels(localStorage.token));
-            } else {
-                const err = await res.json().catch(() => ({}));
-                toast.error(err.detail || 'Failed to install agent');
-            }
-        } catch (e) {
-            toast.error('Failed to install agent');
         }
     };
 
@@ -232,7 +206,7 @@
 					<div class=" w-[44px] shrink-0">
 						<div class=" rounded-full object-cover">
 							<img
-								src={agent.image_url ?? '/static/favicon.png'}
+								src={agent.profile_image_url ?? agent.image_url ?? '/static/favicon.png'}
 								alt="agent profile"
 								class=" rounded-full w-full h-auto object-cover"
                                 onError={(e) => e.target.src = '/static/favicon.png'}
@@ -246,18 +220,9 @@
                             
                             <!-- Actions -->
                             <div class="flex items-center gap-1">
-                                <Tooltip content={$i18n.t('Install')}>
-                                    <button 
-                                        class="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition text-gray-600 dark:text-gray-300"
-                                        on:click={() => installAgent(agent)}
-                                    >
-                                        <ArrowDownTray className="size-4" />
-                                    </button>
-                                </Tooltip>
-                                
                                 {#if $user?.role === 'admin' || agent.user_id === $user?.id}
                                     <Tooltip content={$i18n.t('Delete')}>
-                                        <button 
+                                        <button
                                             class="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition"
                                             on:click={() => deleteAgent(agent.id)}
                                         >
@@ -273,13 +238,18 @@
                         </div>
                         
                         <div class="mt-2 flex flex-wrap gap-1">
-                            {#if agent.foundational_model}
+                            {#if agent.model || agent.foundational_model}
                                 <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                                    {agent.foundational_model}
+                                    {agent.model ?? agent.foundational_model}
                                 </span>
                             {/if}
-                            {#if agent.tools?.capabilities}
-                                {#each Object.keys(agent.tools.capabilities) as cap}
+                            {#if agent.deployment_mode}
+                                <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                    {agent.deployment_mode}
+                                </span>
+                            {/if}
+                            {#if agent.capabilities}
+                                {#each Object.keys(agent.capabilities) as cap}
                                     <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                                         {cap}
                                     </span>
@@ -290,7 +260,7 @@
 				</div>
                 
                 <div class="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center text-xs text-gray-500">
-                     <div class="truncate max-w-[200px]" title={agent.url}>{agent.url}</div>
+                     <div class="truncate max-w-[260px]" title={agent.endpoint ?? agent.url}>{agent.endpoint ?? agent.url}</div>
                 </div>
 			</div>
 		{/each}

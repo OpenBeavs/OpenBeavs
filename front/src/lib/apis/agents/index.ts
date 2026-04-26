@@ -8,6 +8,7 @@ export type DeployAgentForm = {
 	model?: string;
 	profile_image_url?: string;
 	publish_to_registry?: boolean;
+	deploy_to_cloud_run?: boolean;
 };
 
 export const deployAgent = async (token: string, form: DeployAgentForm) => {

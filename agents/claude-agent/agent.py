@@ -72,14 +72,18 @@ async def handle_jsonrpc(request: Request):
         }
 
     model = params.get("model", DEFAULT_MODEL)
+    system_prompt = os.environ.get("SYSTEM_PROMPT", "")
 
     try:
         client = anthropic.Anthropic(api_key=api_key)
-        response = client.messages.create(
-            model=model,
-            max_tokens=8192,
-            messages=[{"role": "user", "content": user_text}],
-        )
+        create_kwargs = {
+            "model": model,
+            "max_tokens": 8192,
+            "messages": [{"role": "user", "content": user_text}],
+        }
+        if system_prompt:
+            create_kwargs["system"] = system_prompt
+        response = client.messages.create(**create_kwargs)
         response_text = response.content[0].text if response.content else ""
     except Exception as e:
         log.error(f"Anthropic API error: {e}")

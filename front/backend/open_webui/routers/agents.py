@@ -469,7 +469,33 @@ async def deploy_agent(
 
     agent_id = str(uuid.uuid4())
     base_url = str(request.base_url).rstrip("/")
-    endpoint = f"{base_url}/api/v1/agents/{agent_id}/internal-a2a"
+    internal_endpoint = f"{base_url}/api/v1/agents/{agent_id}/internal-a2a"
+
+    deployment_mode = "internal"
+    endpoint = internal_endpoint
+
+    if form_data.deploy_to_cloud_run:
+        from open_webui.utils import cloud_run as cloud_run_mod
+
+        try:
+            endpoint = cloud_run_mod.deploy_provider_agent(
+                agent_id,
+                provider=provider,
+                model=model,
+                system_prompt=form_data.system_prompt,
+                profile_image_url=form_data.profile_image_url,
+            )
+            deployment_mode = "cloud_run"
+        except cloud_run_mod.CloudRunDisabled as exc:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=str(exc),
+            )
+        except cloud_run_mod._cloud_run_deploy_error_cls() as exc:
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail=f"Cloud Run deploy failed: {exc}",
+            )
 
     card_skills = [
         {
@@ -496,7 +522,7 @@ async def deploy_agent(
         system_prompt=form_data.system_prompt,
         provider=provider,
         model=model,
-        deployment_mode="internal",
+        deployment_mode=deployment_mode,
         deployment_status="ready",
         user_id=user.id,
     )

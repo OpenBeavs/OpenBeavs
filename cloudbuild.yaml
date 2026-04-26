@@ -50,6 +50,7 @@ steps:
       - '--cpu=4'
       - '--port=8080'
       - '--timeout=600'
+      - '--set-env-vars=HOST=0.0.0.0,WEBUI_SECRET_KEY=change-me-in-prod,OFFLINE_MODE=true,ENV=prod,RAG_EMBEDDING_MODEL_AUTO_UPDATE=false,RAG_RERANKING_MODEL_AUTO_UPDATE=false,BYPASS_EMBEDDING_AND_RETRIEVAL=true,BYPASS_WEB_SEARCH_EMBEDDING_AND_RETRIEVAL=true,WHISPER_MODEL_AUTO_UPDATE=false,OPENBEAVS_CLOUD_RUN_DISABLED=1'
       # Service account with Cloud SQL client + Secret Manager accessor roles
       - '--service-account=genesis-ai-hub-sa@osu-genesis-hub.iam.gserviceaccount.com'
       # Cloud SQL Auth Proxy — enables Unix socket at /cloudsql/INSTANCE_CONNECTION_NAME

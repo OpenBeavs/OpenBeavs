@@ -1,0 +1,46 @@
+.gcloudignore
+.gitignore
+.git/
+.github/
+.vscode/
+.claude/
+
+# Heavy build artifacts (~1.85 GB without these)
+**/node_modules/
+front/build/
+front/.svelte-kit/
+front/.next/
+front/out/
+
+# Python venvs, bytecode, test caches
+**/__pycache__/
+**/*.pyc
+**/.venv/
+**/venv/
+**/.pytest_cache/
+
+# Sensitive runtime data — must never reach a build worker
+front/backend/data/
+**/webui.db
+**/*.sqlite
+**/*.sqlite3
+
+# Real env files only. Keep `.env.example` so devs see the schema.
+**/.env
+**/.env.local
+**/.env.*.local
+!**/.env.example
+
+# Test artifacts and logs
+test_output.txt
+**/*.log
+front/backend/open_webui/test/
+
+# Standalone agent dirs the hub container does NOT need today.
+# Path B will need a subset of these (the three provider shims) and
+# will have to remove these lines. Listed here explicitly so that
+# (a) builds today are tight, (b) the diff is obvious when it changes.
+agents/Cyrano-de-Bergerac/
+agents/oregon-state-expert/
+agents/oregon-state-scraper/
+agents/__pycache__/

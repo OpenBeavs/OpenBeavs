@@ -74,12 +74,18 @@ async def handle_jsonrpc(request: Request):
         }
 
     model = params.get("model", DEFAULT_MODEL)
+    system_prompt = os.environ.get("SYSTEM_PROMPT", "")
+
+    messages = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+    messages.append({"role": "user", "content": user_text})
 
     try:
         client = openai.OpenAI(api_key=api_key, base_url=GEMINI_BASE_URL)
         response = client.chat.completions.create(
             model=model,
-            messages=[{"role": "user", "content": user_text}],
+            messages=messages,
         )
         response_text = response.choices[0].message.content if response.choices else ""
     except Exception as e:

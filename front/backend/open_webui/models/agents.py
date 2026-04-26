@@ -117,6 +117,7 @@ class DeployAgentForm(BaseModel):
     model: Optional[str] = None
     profile_image_url: Optional[str] = None
     publish_to_registry: bool = True
+    deploy_to_cloud_run: bool = False
 
     model_config = ConfigDict(protected_namespaces=())
 

@@ -60,6 +60,94 @@ log = logging.getLogger(__name__)
 log.setLevel(SRC_LOG_LEVELS["MAIN"])
 
 
+def _openai_chat_envelope(model_id: str, response_text: str) -> dict:
+    return {
+        "id": f"chatcmpl-{uuid.uuid4()}",
+        "object": "chat.completion",
+        "created": int(time.time()),
+        "model": model_id,
+        "choices": [
+            {
+                "index": 0,
+                "message": {"role": "assistant", "content": response_text},
+                "finish_reason": "stop",
+            }
+        ],
+        "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+    }
+
+
+def _openai_stream_response(model_id: str, response_text: str) -> StreamingResponse:
+    """Tokenize a finished reply into the OpenAI SSE chunk format the chat UI expects."""
+    async def stream_response():
+        chunk_id = f"chatcmpl-{uuid.uuid4()}"
+        words = response_text.split()
+        for i, word in enumerate(words):
+            chunk = {
+                "id": chunk_id,
+                "object": "chat.completion.chunk",
+                "created": int(time.time()),
+                "model": model_id,
+                "choices": [
+                    {
+                        "index": 0,
+                        "delta": {
+                            "content": word + " " if i < len(words) - 1 else word
+                        },
+                        "finish_reason": None,
+                    }
+                ],
+            }
+            yield f"data: {json.dumps(chunk)}\n\n"
+            await asyncio.sleep(0.01)
+
+        final_chunk = {
+            "id": chunk_id,
+            "object": "chat.completion.chunk",
+            "created": int(time.time()),
+            "model": model_id,
+            "choices": [{"index": 0, "delta": {}, "finish_reason": "stop"}],
+        }
+        yield f"data: {json.dumps(final_chunk)}\n\n"
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(stream_response(), media_type="text/event-stream")
+
+
+async def generate_internal_agent_chat_completion(
+    request: Request,
+    form_data: dict,
+    user: Any,
+    agent: Any,
+):
+    """Internal-mode agents: call the LLM provider in-process.
+
+    The hub stores the agent's endpoint as its own ``/internal-a2a`` URL,
+    so the alternative would be HTTPS-self-calling the hub. That round-trip
+    is wasteful, vulnerable to Cloud Run network quirks (the user-reported
+    60 s ReadTimeout), and adds nothing — we already have the agent row
+    in this process. Just call ``run_agent_turn`` directly.
+    """
+    from open_webui.utils.a2a_runtime import run_agent_turn
+
+    messages = form_data.get("messages") or []
+    if not messages:
+        raise Exception("No messages provided")
+    user_message_content = messages[-1].get("content", "")
+
+    reply = await run_agent_turn(
+        provider=agent.provider or "anthropic",
+        model=agent.model,
+        system_prompt=agent.system_prompt or "",
+        user_message=user_message_content,
+    )
+
+    model_id = form_data.get("model")
+    if form_data.get("stream"):
+        return _openai_stream_response(model_id, reply)
+    return _openai_chat_envelope(model_id, reply)
+
+
 async def generate_a2a_agent_chat_completion(
     request: Request,
     form_data: dict,
@@ -384,6 +472,13 @@ async def generate_chat_completion(
             raise Exception("Agent not found")
 
         log.info(f"Found agent: {agent.name} at {agent.endpoint or agent.url}")
+
+        # Internal-mode agents short-circuit the A2A round-trip and call the
+        # provider in-process. See generate_internal_agent_chat_completion.
+        if getattr(agent, "deployment_mode", None) == "internal":
+            return await generate_internal_agent_chat_completion(
+                request, form_data, user=user, agent=agent
+            )
 
         # Construct model object for agent
         model = {

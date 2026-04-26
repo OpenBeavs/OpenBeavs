@@ -29,6 +29,7 @@
 	let model = PROVIDER_DEFAULTS['anthropic'];
 	let profileImageUrl = '';
 	let publishToRegistry = true;
+	let deployToCloudRun = false;
 
 	let modelTouched = false;
 
@@ -50,7 +51,8 @@
 			provider,
 			model: model || undefined,
 			profile_image_url: profileImageUrl.trim() || undefined,
-			publish_to_registry: publishToRegistry
+			publish_to_registry: publishToRegistry,
+			deploy_to_cloud_run: deployToCloudRun
 		};
 
 		try {
@@ -168,6 +170,21 @@
 					on:change={(e) => (publishToRegistry = e.detail === 'checked')}
 				/>
 				<span class="text-sm">{$i18n.t('Publish to marketplace')}</span>
+			</label>
+
+			<label class="flex items-start gap-2">
+				<Checkbox
+					state={deployToCloudRun ? 'checked' : 'unchecked'}
+					on:change={(e) => (deployToCloudRun = e.detail === 'checked')}
+				/>
+				<span class="text-sm flex flex-col">
+					<span>{$i18n.t('Deploy to dedicated Cloud Run service (recommended for production)')}</span>
+					<span class="text-xs text-gray-500">
+						{$i18n.t(
+							'Provisions a per-agent Cloud Run service with its own URL and secrets. Requires gcloud credentials on the hub host. Leave unchecked to host the agent inside this hub instance.'
+						)}
+					</span>
+				</span>
 			</label>
 
 			<div class="flex justify-end gap-2 mt-2">
